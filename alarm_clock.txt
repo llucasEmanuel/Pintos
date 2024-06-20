@@ -1,0 +1,5 @@
+- A sleep_list é definida no thread.c e inicializada no thread_init() do mesmo arquivo
+- Adição do atributo uint64_t local_tick na struct thread
+- Remoção do while no timer_sleep e adição de um if com a mesma condição, só que chamando o thread_sleep(start+ticks) dentro
+- Definição do thread_sleep no thread.c e thread.h
+- Modificar o timer_interrupt no timer.c
