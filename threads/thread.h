@@ -93,7 +93,7 @@ struct thread
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
     
-    uint64_t local_tick; // tick local da thread para checar no timer_sleep
+    int64_t local_tick; // tick local da thread para checar no timer_sleep
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -122,6 +122,7 @@ void thread_block (void);
 void thread_unblock (struct thread *);
 
 void thread_sleep(uint64_t); // função q coloca a thread para dormir
+bool compare_ticks(struct list_elem *a, struct list_elem *b);
 
 struct thread *thread_current (void);
 tid_t thread_tid (void);

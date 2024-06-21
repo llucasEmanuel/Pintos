@@ -7,6 +7,7 @@
 #include "threads/interrupt.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
+// #include "threads/thread.c" // n pode incluir o thread .c aqui
   
 /* See [8254] for hardware details of the 8254 timer chip. */
 
@@ -177,9 +178,17 @@ timer_interrupt (struct intr_frame *args UNUSED)
   thread_tick ();
 
   // check sleep_list and the global tick
-  // find any threads to wake up
-  // move them to the ready_list if necessary
-  // update the global tick
+  struct list_elem *temp = list_begin(&sleep_list); // como dar include só na sleep_list?
+  while (temp != list_end(&sleep_list)) {
+    struct thread *th = list_entry(temp, struct thread, elem);
+    if (th->local_tick <= ticks) { // tem thread para acordar
+      temp = list_remove(temp);
+      thread_unblock(th);
+    }
+    else { // não tem thread para acordar, n precisa continuar
+      break;
+    }
+  }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

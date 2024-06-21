@@ -29,9 +29,6 @@ static struct list ready_list;
    when they are first scheduled and removed when they exit. */
 static struct list all_list;
 
-// Lista das threads bloqueadas
-static struct list sleep_list;
-
 /* Idle thread. */
 static struct thread *idle_thread;
 
@@ -254,14 +251,24 @@ void thread_sleep(uint64_t ticks) {
   if (curr_th != idle_thread) {
     // change the state of the caller thread to blocked
     enum intr_level old_level = intr_disable(); // desabilita interrupções
-    list_insert_ordered(&sleep_list, curr_th, NULL, NULL); // tem que modificar esses NULL ainda (passar a função de comparação)
+    curr_th->local_tick = ticks; // armazena o numero de ticks em que a thread vai acordar
+    list_insert_ordered(&sleep_list, &curr_th->elem, &compare_ticks, NULL); // tem que modificar esses NULL ainda (passar a função de comparação)
     curr_th->status = THREAD_BLOCKED;
-    // store the local tick to wake up (adicionar o ticks no local_tick?)
+
     // update the global tick if necessary
+     
     schedule();
 
     intr_set_level(old_level); // restaura interrupções
   }
+}
+
+bool compare_ticks(struct list_elem *a, struct list_elem *b) {
+  // converte os list_elem em thread
+  struct thread *th_a = list_entry(a, struct thread, elem);
+  struct thread *th_b = list_entry(b, struct thread, elem);
+
+  return th_a->local_tick < th_b->local_tick;
 }
 
 /* Returns the name of the running thread. */
