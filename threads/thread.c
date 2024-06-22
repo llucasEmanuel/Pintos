@@ -252,7 +252,7 @@ void thread_sleep(uint64_t ticks) {
     // change the state of the caller thread to blocked
     enum intr_level old_level = intr_disable(); // desabilita interrupções
     curr_th->local_tick = ticks; // armazena o numero de ticks em que a thread vai acordar
-    list_insert_ordered(&sleep_list, &curr_th->elem, &compare_ticks, NULL); // tem que modificar esses NULL ainda (passar a função de comparação)
+    list_insert_ordered(&sleep_list, &curr_th->elem, compare_ticks, NULL); // tem que modificar esses NULL ainda (passar a função de comparação)
     curr_th->status = THREAD_BLOCKED;
 
     // update the global tick if necessary
