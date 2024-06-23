@@ -109,8 +109,6 @@ struct list
         ((STRUCT *) ((uint8_t *) &(LIST_ELEM)->next     \
                      - offsetof (STRUCT, MEMBER.next)))
 
-// Lista das threads bloqueadas
-static struct list sleep_list;
 
 /* List initialization.
 
