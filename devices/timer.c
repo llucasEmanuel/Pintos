@@ -92,12 +92,15 @@ timer_sleep (int64_t ticks)
 {
   int64_t start = timer_ticks ();
 
+  //printf("INICIO DO timer_sleep COM %lld TICKS\n");
   ASSERT (intr_get_level () == INTR_ON);
   // while (timer_elapsed (start) < ticks) 
   //   thread_yield ();
   if (timer_elapsed (start) < ticks) {
     thread_sleep(start + ticks);
   }
+  //printf("FIM DO timer_sleep\n");
+
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -163,6 +166,20 @@ timer_ndelay (int64_t ns)
   real_time_delay (ns, 1000 * 1000 * 1000);
 }
 
+void thread_wakeup() {
+  struct list_elem *temp = list_begin(&sleep_list); // como dar include só na sleep_list?
+  while (temp != list_empty(&sleep_list)) {
+    struct thread *th = list_entry(temp, struct thread, elem);
+    if (th->local_tick <= ticks) { // tem thread para acordar
+      temp = list_remove(temp);
+      thread_unblock(th);
+    }
+    else { // não tem thread para acordar, n precisa continuar
+      break;
+    }
+  }
+}
+
 /* Prints timer statistics. */
 void
 timer_print_stats (void) 
@@ -176,19 +193,8 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
-
-  // check sleep_list and the global tick
-  struct list_elem *temp = list_begin(&sleep_list); // como dar include só na sleep_list?
-  while (temp != list_end(&sleep_list)) {
-    struct thread *th = list_entry(temp, struct thread, elem);
-    if (th->local_tick <= ticks) { // tem thread para acordar
-      temp = list_remove(temp);
-      thread_unblock(th);
-    }
-    else { // não tem thread para acordar, n precisa continuar
-      break;
-    }
-  }
+  
+  thread_wakeup();
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
