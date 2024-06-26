@@ -25,8 +25,12 @@ typedef int tid_t;
 #define PRI_MAX 63                      /* Highest priority. */
 
 
-// Lista das threads bloqueadas
+// Lista das threads bloqueadas.
 extern struct list sleep_list;
+
+// Lista de prioridades.
+extern struct list priorities[ PRI_MAX + 1 ]; 
+
 /* A kernel thread or user process.
 
    Each thread structure is stored in its own 4 kB page.  The
@@ -97,6 +101,7 @@ struct thread
     struct list_elem elem;              /* List element. */
     
     int64_t local_tick; // tick local da thread para checar no timer_sleep
+    int64_t recent_cpu; // quantidade que thread usou o cpu *recentemente*
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
