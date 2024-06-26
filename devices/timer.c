@@ -167,7 +167,7 @@ timer_ndelay (int64_t ns)
 }
 
 void thread_wakeup() {
-  struct list_elem *temp = list_begin(&sleep_list); // como dar include só na sleep_list?
+  struct list_elem *temp = list_begin(&sleep_list);
   while (temp != list_empty(&sleep_list)) {
     struct thread *th = list_entry(temp, struct thread, elem);
     if (th->local_tick <= ticks) { // tem thread para acordar
@@ -191,10 +191,49 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
+
   ticks++;
+
   thread_tick ();
   
   thread_wakeup();
+
+  //atualiza recent_cpu
+  thread_current()->recent_cpu++;
+
+  // coisas q acontecem a cada quatro ticks
+  if( ticks % 4 == 0 ) {
+    struct list_elem *curr;
+    struct thread *temp;
+    for(int i = 0, j, jmax; i <= PRI_MAX; i++) {
+      jmax = list_size(&priorities[i]);
+      curr = &priorities[i].head;
+      for(j = 0; j < jmax; j++) {
+        curr = curr->next;
+        temp = list_entry(curr, struct thread, elem);
+        
+        // calcula prioridades
+      
+      }
+    }
+  }
+
+  // coisas q acontecem a cada segundo
+  if( ticks % TIMER_FREQ == 0 ) {
+    struct list_elem *curr;
+    struct thread *temp;
+    for(int i = 0, j, jmax; i <= PRI_MAX; i++) {
+      jmax = list_size(&priorities[i]);
+      curr = &priorities[i].head;
+      for(j = 0; j < jmax; j++) {
+        curr = curr->next;
+        temp = list_entry(curr, struct thread, elem);
+
+        // atualiza recent_cpu de todas as threads
+
+      }
+    }
+  }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
